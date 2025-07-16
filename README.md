@@ -346,7 +346,7 @@ function App() {
 组件内置了丰富的 meme 列表，包括：
 - 编程梗：`"Hello, world!"`、`for (let i = 0; i < array.length; i++) { }`
 - 数学/物理公式：`E=MC²`、`a² + b² = c²`
-- 表情符号：`(^_^)`、`¯\\_(ツ)_/¯`、`ಠ_ಠ`
+-  表情符号：`(^_^)`、`¯\\_(ツ)_/¯`、`ಠ_ಠ`
 - 经典语录和彩蛋
 
 你可以导入并使用默认列表：
@@ -362,7 +362,7 @@ const myMemes = [...defaultMemesSet, '我的自定义内容'];
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/react-meme-loading.git
+git clone https://github.com/cybermanhao/react-memeloading.git
 
 # 安装依赖
 npm install
@@ -377,9 +377,41 @@ npm run build
 npm test
 
 # 预览example
+npm run preview:example
+
+# 或手动
 cd example
-npx vite
+npx vite      # 直接本地预览
 ```
+
+## 🚀 在线预览与部署
+
+本项目的 example 示例页面已通过 GitHub Actions 自动部署至 GitHub Pages。
+
+- **在线预览地址**：
+  [https://cybermanhao.github.io/react-memeloading/](https://cybermanhao.github.io/react-memeloading/)
+
+每次 push 到 main 分支，CI/CD 会自动构建并发布最新 example 页面到 gh-pages 分支。
+
+### 🟢 部署状态
+
+![GitHub Pages](https://github.com/cybermanhao/react-memeloading/actions/workflows/gh-pages.yml/badge.svg)
+
+如需本地预览 example，请参考上文“开发”部分。
+
+## 📦 example 目录部署到 GitHub Pages
+
+本仓库已配置 GitHub Actions 自动将 example 目录（Vite 构建产物）部署到 GitHub Pages，访问地址：
+
+👉 [https://cybermanhao.github.io/react-memeloading/](https://cybermanhao.github.io/react-memeloading/)
+
+每次 push 到 main 分支，example 会自动构建并发布到 gh-pages 分支。
+
+### CI 状态
+
+![GitHub Pages](https://github.com/cybermanhao/react-memeloading/actions/workflows/gh-pages.yml/badge.svg)
+
+如需本地预览 example，请参考“开发”部分。
 
 ## 📄 许可证
 
