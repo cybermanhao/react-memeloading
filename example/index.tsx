@@ -36,11 +36,11 @@ const App: React.FC = () => {
 
   // 背景色预设
   const backgroundPresets = [
-    { name: '黑色半透明', value: 'rgba(0, 0, 0, 0.8)' },
-    { name: '白色半透明', value: 'rgba(255, 255, 255, 0.9)' },
-    { name: '蓝色渐变', value: 'linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9))' },
-    { name: '龙女仆主题', value: 'rgba(56, 60, 70, 0.9)' },
-    { name: '粉色梦幻', value: 'rgba(255, 20, 147, 0.8)' },
+    { name: '白色半透明', value: 'rgba(255, 255, 255, 0.95)' },
+    { name: '浅灰半透明', value: 'rgba(240, 240, 240, 0.92)' },
+    { name: '淡蓝渐变', value: 'linear-gradient(135deg, rgba(180, 210, 255, 0.92), rgba(200, 180, 255, 0.92))' },
+    { name: '龙女仆主题浅色', value: 'rgba(230, 232, 240, 0.93)' },
+    { name: '粉色梦幻', value: 'rgba(255, 182, 193, 0.90)' },
   ];
 
   // 更新任务进度
@@ -135,12 +135,6 @@ const App: React.FC = () => {
     setTasks([]);
   };
 
-  const customMemes = [
-    '自定义加载文本 1',
-    '自定义加载文本 2', 
-    'React MemeLoading 示例',
-    '模仿龙女仆片头...'
-  ];
 
   return (
     <div style={{ 
@@ -446,15 +440,6 @@ const App: React.FC = () => {
               textAlign: 'center',
               maxWidth: '200px'
             }}>
-              <p style={{ 
-                color: '#6c757d', 
-                fontSize: '14px',
-                margin: 0,
-                lineHeight: '1.4'
-              }}>
-                🐉 致敬《小林家的龙女仆》<br/>
-                片头弹幕风格动画
-              </p>
             </div>
           </div>
         </div>
