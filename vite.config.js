@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
@@ -8,6 +9,7 @@ export default defineConfig({
     outDir: 'dist', // 输出到 example/dist
     emptyOutDir: true
   },
+  publicDir: resolve(__dirname, 'example/assets'), // 让 assets 目录下的图片等静态资源原样拷贝到 dist
   server: {
     port: 3002,
     open: true,

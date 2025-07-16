@@ -404,7 +404,7 @@ const App: React.FC = () => {
           minDuration={minDuration}
           boostDuration={boostDuration}
           backgroundColor={backgroundColor}
-          memes={customMemes}
+          memes={defaultMemesSet}
         />
       </div>
 
