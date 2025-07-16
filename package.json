@@ -19,7 +19,8 @@
     "test:example": "vite",
     "lint": "eslint src --ext .ts,.tsx",
     "prepublishOnly": "npm run build",
-    "build:example": "vite build --config vite.config.js --outDir example/dist --base=/react-memeloading/"
+    "build:example": "vite build --config vite.config.js --base=/react-memeloading/",
+    "preview:example": "vite preview --config vite.config.js --outDir example/dist"
   },
   "keywords": [
     "react",

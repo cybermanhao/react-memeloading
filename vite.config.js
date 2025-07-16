@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  root: './example',
+  root: 'example', // 明确指定 example 目录为根目录
+  build: {
+    outDir: 'dist', // 输出到 example/dist
+    emptyOutDir: true
+  },
   server: {
     port: 3002,
     open: true,
