@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 /**
  * Loading 队列管理 Hook
  * 用于管理多个并发请求的全局 loading 状态
+ *
+ * @param onComplete 当队列完全清空时调用（count 从 >0 变为 0）
  *
  * @returns {add} 增加计数
  * @returns {remove} 减少计数
@@ -19,8 +21,17 @@ import { useState, useCallback } from 'react';
  * // 方式2: 自动管理
  * await withLoading(fetch('/api'));
  */
-export function useLoadingQueue() {
+export function useLoadingQueue(onComplete?: () => void) {
   const [count, setCount] = useState(0);
+  const prevCountRef = useRef(0);
+
+  // 检测队列完成
+  useEffect(() => {
+    if (prevCountRef.current > 0 && count === 0) {
+      onComplete?.();
+    }
+    prevCountRef.current = count;
+  }, [count, onComplete]);
 
   const add = useCallback(() => {
     setCount(c => c + 1);

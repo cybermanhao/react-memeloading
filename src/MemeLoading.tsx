@@ -13,6 +13,8 @@ import './index.css';
  * @param safemod 安全模式，true 时不显示字符且所有动画加速为 0.1 秒
  * @param boostDuration boot 阶段加速时间（秒）
  * @param queueMode true 时 loadingSignal 为计数值（>0 显示），false 时为 boolean
+ * @param showTrack 是否显示任务进度轨道
+ * @param tasks 任务列表，用于显示进度轨道
  */
 export interface MemeLoadingProps {
   loadingSignal: boolean | number;
@@ -23,6 +25,14 @@ export interface MemeLoadingProps {
   safemod?: boolean;
   boostDuration?: number;
   queueMode?: boolean;
+  showTrack?: boolean;
+  tasks?: { name: string; startTime?: number; duration?: number; progress: number; status: 'waiting' | 'running' | 'completed' }[];
+}
+
+export interface MemeTask {
+  name: string;
+  progress: number;
+  status: 'waiting' | 'running' | 'completed';
 }
 
 const MemeLoading: React.FC<MemeLoadingProps> = ({
@@ -34,6 +44,8 @@ const MemeLoading: React.FC<MemeLoadingProps> = ({
   safemod = false,
   boostDuration = 0.1,
   queueMode = false,
+  showTrack = false,
+  tasks = [],
 }) => {
   const [status, setStatus] = useState<'load' | 'boot' | 'off'>('off');
   const [currentMeme, setCurrentMeme] = useState('');
@@ -124,9 +136,66 @@ const MemeLoading: React.FC<MemeLoadingProps> = ({
     ? ''
     : currentMeme + (isDone && status === 'load' ? (blink ? '_' : ' ') : '_');
 
+  // 队列结束后清空任务
+  useEffect(() => {
+    if (status === 'off' && showTrack) {
+      // 延迟清空，等待动画完成
+      const timeout = setTimeout(() => {
+        // 可以通过外部控制清空，这里暂时不做自动清空
+        // 因为外部可能需要保留任务记录
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [status, showTrack]);
+
+  // 按时间排序任务
+  const sortedTasks = tasks ? tasks.slice().sort((a, b) => (a.startTime || 0) - (b.startTime || 0)) : [];
+
+  // 计算缩进层级（基于等待时间）
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getIndentLevel = (task: any, index: number) => {
+    if (index === 0) return 0;
+    const prevTask = sortedTasks[index - 1];
+    const prevEnd = (prevTask.startTime || 0) + (prevTask.duration || 1000);
+    const myStart = task.startTime || Date.now();
+    return Math.max(0, Math.floor((myStart - prevEnd) / 500));
+  };
+
   return (
     <div className="meme-loading" style={{ visibility, backgroundColor }}>
       <div className="meme">{safemod ? '' : visibleMeme}</div>
+      {showTrack && sortedTasks.length > 0 && (
+        <div className="meme-gantt">
+          {sortedTasks.map((task, i) => {
+            const indent = getIndentLevel(task, i);
+            return (
+              <div
+                key={i}
+                className={`gantt-item ${task.status}`}
+                style={{ paddingLeft: `${indent * 12 + 8}px` }}
+              >
+                <span className="gantt-time">
+                  {new Date(task.startTime || Date.now()).toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+                <span className="gantt-name">{task.name}</span>
+                <div className="gantt-bar">
+                  {task.status === 'waiting' ? (
+                    <span className="gantt-waiting">等待中...</span>
+                  ) : (
+                    <div
+                      className="gantt-progress"
+                      style={{ width: `${task.progress}%` }}
+                    />
+                  )}
+                </div>
+                <span className="gantt-percent">
+                  {task.status === 'waiting' ? '' : `${task.progress}%`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

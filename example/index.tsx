@@ -13,6 +13,7 @@ interface Config {
   backgroundColor: string;
   safemod: boolean;
   trueFan: boolean;
+  showTrack: boolean;
 }
 
 const DEFAULTS: Config = {
@@ -21,6 +22,7 @@ const DEFAULTS: Config = {
   backgroundColor: '',
   safemod: false,
   trueFan: false,
+  showTrack: false,
 };
 
 const BG_PRESETS = [
@@ -31,8 +33,74 @@ const BG_PRESETS = [
 ];
 
 // Queue Mode Demo Component
-const QueueDemo: React.FC = () => {
-  const { add, remove, count, withLoading } = useLoadingQueue();
+interface Task {
+  id: number;
+  name: string;
+  startTime: number;
+  duration: number;
+  delay: number;
+  status: 'waiting' | 'running' | 'completed';
+  progress?: number;
+  addedTime: number;
+}
+
+interface QueueDemoProps {
+  onCountChange: (count: number) => void;
+  onTasksChange: (tasks: { name: string; progress: number; status: 'waiting' | 'running' | 'completed' }[]) => void;
+  onShowTrackChange: (show: boolean) => void;
+}
+
+const QueueDemo: React.FC<QueueDemoProps> = ({ onCountChange, onTasksChange, onShowTrackChange }) => {
+  const [showTrack, setShowTrack] = useState(true);
+
+  // 同步轨道开关状态到父组件
+  const handleShowTrackChange = (show: boolean) => {
+    setShowTrack(show);
+    onShowTrackChange(show);
+  };
+  const { add, remove, withLoading, count } = useLoadingQueue(() => {
+    // 队列完成后延迟清空任务列表
+    setTimeout(() => setTasks([]), 500);
+  });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [nextTaskId, setNextTaskId] = useState(1);
+  const [nextDelay, setNextDelay] = useState(0);
+  const [nextDuration, setNextDuration] = useState(1500);
+  const [activeTab, setActiveTab] = useState<'preset' | 'settings'>('preset');
+
+  // 同步计数到父组件
+  useEffect(() => {
+    onCountChange(count);
+  }, [count, onCountChange]);
+
+  // 实时更新 running 任务的进度
+  useEffect(() => {
+    const runningTasks = tasks.filter(t => t.status === 'running');
+    if (runningTasks.length === 0) return;
+
+    const interval = setInterval(() => {
+      setTasks(prev => prev.map(t => {
+        if (t.status !== 'running') return t;
+        const elapsed = Date.now() - t.startTime;
+        const progress = Math.min((elapsed / t.duration) * 100, 99);
+        return { ...t, progress: Math.round(progress) };
+      }));
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [tasks]);
+
+  // 同步任务到父组件
+  useEffect(() => {
+    const trackTasks = tasks.map(t => ({
+      name: t.name,
+      startTime: t.startTime || t.addedTime,
+      progress: t.status === 'waiting' ? 0 : t.status === 'completed' ? 100 : (t.progress || 50),
+      status: t.status,
+      duration: t.duration,
+    }));
+    onTasksChange(trackTasks);
+  }, [tasks, onTasksChange]);
 
   // 模拟异步请求
   const simulateRequest = (ms: number) =>
@@ -40,55 +108,258 @@ const QueueDemo: React.FC = () => {
 
   // 方式1: 手动管理
   const handleManualAdd = () => {
+    const taskId = nextTaskId;
+    setNextTaskId(id => id + 1);
+
+    setTasks(prev => [...prev, {
+      id: taskId,
+      name: `任务 #${taskId}`,
+      startTime: Date.now(),
+      duration: 2000,
+      addedTime: Date.now(),
+      status: 'running'
+    }]);
+
     add();
-    simulateRequest(2000).then(remove);
+    simulateRequest(2000).then(() => {
+      remove();
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, status: 'completed' as const } : t
+      ));
+    });
   };
 
   // 方式2: 使用 withLoading 自动管理
   const handleAuto = async () => {
-    await withLoading(() => simulateRequest(1500));
+    const taskId = nextTaskId;
+    setNextTaskId(id => id + 1);
+
+    setTasks(prev => [...prev, {
+      id: taskId,
+      name: `自动任务 #${taskId}`,
+      startTime: Date.now(),
+      duration: 1500,
+      status: 'running'
+    }]);
+
+    await withLoading(async () => {
+      await simulateRequest(1500);
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, status: 'completed' as const } : t
+      ));
+    });
   };
 
-  // 方式3: 并发多个请求
-  const handleMultiple = async () => {
-    await Promise.all([
-      withLoading(() => simulateRequest(1000)),
-      withLoading(() => simulateRequest(2000)),
-      withLoading(() => simulateRequest(3000)),
-    ]);
+  // 方式3: 串行多个请求
+  const handleSerial = async () => {
+    for (let i = 0; i < 3; i++) {
+      const taskId = nextTaskId + i;
+      const durations = [800, 1200, 1600];
+
+      setTasks(prev => [...prev, {
+        id: taskId,
+        name: `串行任务 #${taskId}`,
+        startTime: Date.now(),
+        duration: durations[i],
+        status: 'running' as const
+      }]);
+
+      await withLoading(async () => {
+        await simulateRequest(durations[i]);
+        setTasks(prev => prev.map(t =>
+          t.id === taskId ? { ...t, status: 'completed' as const } : t
+        ));
+      });
+    }
+    setNextTaskId(id => id + 3);
+  };
+
+  // 清除历史
+  const handleClear = () => {
+    setTasks([]);
+  };
+
+  // 添加延迟任务
+  const handleAddDelayed = () => {
+    const taskId = nextTaskId;
+    const delay = nextDelay;
+    const duration = nextDuration;
+
+    setNextTaskId(id => id + 1);
+    setTasks(prev => [...prev, {
+      id: taskId,
+      name: `延迟任务 #${taskId}`,
+      startTime: Date.now() + delay,
+      duration,
+      delay,
+      status: 'waiting'
+    }]);
+
+    // 延迟后开始执行
+    setTimeout(() => {
+      setTasks(prev => prev.map(t =>
+        t.id === taskId ? { ...t, status: 'running' as const } : t
+      ));
+
+      add();
+      simulateRequest(duration).then(() => {
+        remove();
+        setTasks(prev => prev.map(t =>
+          t.id === taskId ? { ...t, status: 'completed' as const } : t
+        ));
+      });
+    }, delay);
   };
 
   return (
     <div className="queue-demo">
-      <div className="queue-actions">
-        <button className="btn-queue" onClick={handleManualAdd}>
-          手动 add + remove
+      {/* Hook 使用说明 + 轨道开关 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, padding: '12px 16px', background: 'rgba(124,58,237,0.08)', borderRadius: 8, border: '1px solid rgba(124,58,237,0.15)' }}>
+        <div>
+          <code style={{ fontSize: 12, color: '#a78bfa' }}>
+            const {'{ add, remove, count, withLoading }'} = useLoadingQueue()
+          </code>
+          <p style={{ margin: '8px 0 0', fontSize: 11, color: '#6666aa' }}>
+            add() / remove() 手动管理 · withLoading(fn) 自动包装异步函数 · onComplete 队列清空回调
+          </p>
+        </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+          <input
+            type="checkbox"
+            checked={showTrack}
+            onChange={e => handleShowTrackChange(e.target.checked)}
+            style={{ accentColor: '#7c3aed', width: 16, height: 16 }}
+          />
+          <span style={{ fontSize: 12, color: showTrack ? '#a78bfa' : '#6666aa' }}>
+            进度轨道
+          </span>
+        </label>
+      </div>
+
+      {/* Tab 导航 */}
+      <div className="queue-tabs">
+        <button
+          className={`tab-btn ${activeTab === 'preset' ? 'active' : ''}`}
+          onClick={() => setActiveTab('preset')}
+        >
+          预设队列
         </button>
-        <button className="btn-queue" onClick={handleAuto}>
-          withLoading 自动管理
-        </button>
-        <button className="btn-queue" onClick={handleMultiple}>
-          并发 3 个请求
+        <button
+          className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          参数设置
         </button>
       </div>
+
+      {/* Tab 内容 */}
+      {activeTab === 'preset' && (
+        <div className="tab-content">
+          <div className="queue-actions">
+            <button className="btn-queue" onClick={handleManualAdd}>
+              手动 add + remove
+            </button>
+            <button className="btn-queue" onClick={handleAuto}>
+              withLoading 自动
+            </button>
+            <button className="btn-queue" onClick={handleSerial}>
+              串行 3 个任务
+            </button>
+            <button className="btn-queue btn-random" onClick={() => {
+              const delays = [0, 300, 600, 900];
+              const durations = [1000, 1500, 2000];
+              for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                  const taskId = nextTaskId + i;
+                  const delay = delays[i];
+                  const duration = durations[Math.floor(Math.random() * durations.length)];
+                  setTasks(prev => [...prev, {
+                    id: taskId,
+                    name: `随机任务 #${taskId}`,
+                    startTime: Date.now() + delay,
+                    duration,
+                    delay,
+                    status: 'waiting'
+                  }]);
+                  setTimeout(() => {
+                    setTasks(prev => prev.map(t =>
+                      t.id === taskId ? { ...t, status: 'running' as const } : t
+                    ));
+                    add();
+                    simulateRequest(duration).then(() => {
+                      remove();
+                      setTasks(prev => prev.map(t =>
+                        t.id === taskId ? { ...t, status: 'completed' as const } : t
+                      ));
+                    });
+                  }, delay);
+                }, i * 100);
+              }
+              setNextTaskId(id => id + 4);
+            }}>
+            随机队列 (间隔0.3s)
+            </button>
+            <button className="btn-queue btn-clear" onClick={handleClear}>
+              清除
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="tab-content">
+          <div className="delayed-config">
+            <span className="config-label">自定义任务：</span>
+            <label className="config-input">
+              延迟
+              <input
+                type="number"
+                min="0"
+                max="5000"
+                step="100"
+                value={nextDelay}
+                onChange={e => setNextDelay(Number(e.target.value))}
+              />
+              ms
+            </label>
+            <label className="config-input">
+              持续
+              <input
+                type="number"
+                min="500"
+                max="5000"
+                step="100"
+                value={nextDuration}
+                onChange={e => setNextDuration(Number(e.target.value))}
+              />
+              ms
+            </label>
+            <button className="btn-queue btn-add" onClick={handleAddDelayed}>
+              开始演示
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="queue-status">
         当前队列计数: <strong>{count}</strong>
       </div>
-      <p className="queue-hint">
-        查看 useLoadingQueue hook 源码，了解如何在自己的项目中使用
-      </p>
     </div>
   );
 };
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [queueCount, setQueueCount] = useState(0);
+  const [queueTasks, setQueueTasks] = useState<{ name: string; progress: number; status: 'waiting' | 'running' | 'completed' }[]>([]);
+  const [showTrack, setShowTrack] = useState(true); // 演示页默认开启轨道
   const [config, setConfig] = useState<Config>({
     minDuration: 1.5,
     boostDuration: 0.2,
     backgroundColor: 'rgba(0, 0, 0, 0.88)',
     safemod: false,
     trueFan: false,
+    showTrack: true,
   });
   const [copied, setCopied] = useState(false);
   const [triggerMemeIndex, setTriggerMemeIndex] = useState<number | null>(null);
@@ -170,6 +441,7 @@ const App: React.FC = () => {
       lines.push(`  backgroundColor="${config.backgroundColor}"`);
     if (config.safemod) lines.push('  safemod');
     if (config.trueFan) lines.push('  trueFan');
+    if (config.showTrack) lines.push('  showTrack');
     return `<MemeLoading\n${lines.join('\n')}\n/>`;
   }, [config]);
 
@@ -312,6 +584,7 @@ const App: React.FC = () => {
               {([
                 ['safemod', '安全模式', '不显示文字，纯遮罩'],
                 ['trueFan', '彩蛋模式', '固定显示特定 meme'],
+                ['showTrack', '进度轨道', '显示任务进度条（队列模式）'],
               ] as const).map(([key, label, hint]) => (
                 <label key={key} className="toggle">
                   <input
@@ -364,7 +637,7 @@ const App: React.FC = () => {
         <h2 className="section-title">队列模式</h2>
         <p className="section-desc">使用 useLoadingQueue hook 管理多个并发请求</p>
 
-        <QueueDemo />
+        <QueueDemo onCountChange={setQueueCount} onTasksChange={setQueueTasks} onShowTrackChange={setShowTrack} />
       </section>
 
       {/* ── MEME WALL ── */}
@@ -401,8 +674,10 @@ const App: React.FC = () => {
       </footer>
 
       <MemeLoading
-        loadingSignal={loading}
+        loadingSignal={queueCount > 0 ? queueCount : loading}
+        queueMode={queueCount > 0}
         {...config}
+        tasks={config.showTrack ? queueTasks : []}
         memes={activeMemes}
       />
     </div>

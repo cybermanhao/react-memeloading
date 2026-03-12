@@ -573,3 +573,222 @@ a:hover { text-decoration: underline; }
   padding-top: 12px;
   border-top: 1px solid #1e1e40;
 }
+
+.btn-clear {
+  background: #1a1a2a;
+  color: #6666aa;
+  border-color: #2a2a4a;
+}
+
+.btn-clear:hover {
+  background: #2a1a1a;
+  border-color: #aa4444;
+  color: #ff6666;
+}
+
+.btn-add {
+  background: #1a2a1a;
+  color: #4ade80;
+  border-color: #2a4a2a;
+}
+
+.btn-add:hover {
+  background: #2a3a2a;
+  border-color: #4ade80;
+}
+
+/* Delayed task config */
+.delayed-config {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #0a0a1e;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.config-label {
+  font-size: 13px;
+  color: #6666aa;
+}
+
+.config-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6666aa;
+}
+
+.config-input input {
+  width: 60px;
+  padding: 4px 8px;
+  background: #1a1a2a;
+  border: 1px solid #2a2a4a;
+  border-radius: 4px;
+  color: #a78bfa;
+  font-size: 12px;
+  font-family: inherit;
+  text-align: center;
+}
+
+.config-input input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+
+/* ── Timeline ── */
+.timeline {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #1e1e40;
+}
+
+.timeline h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #6666aa;
+  font-weight: 500;
+}
+
+.timeline-empty {
+  font-size: 12px;
+  color: #444466;
+  margin: 0;
+}
+
+.timeline-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeline-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.track-name {
+  font-size: 11px;
+  color: #6666aa;
+  min-width: 80px;
+}
+
+.track-bar {
+  flex: 1;
+  height: 8px;
+  background: #1a1a3a;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.track-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 4px;
+  width: 0;
+  animation: progress-fill linear forwards;
+}
+
+.timeline-track.completed .track-progress {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+.timeline-track.completed .track-bar::after {
+  content: '✓';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: #4ade80;
+}
+
+.timeline-track.waiting .track-bar {
+  background: #1a1a2a;
+}
+
+.track-waiting {
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #2a2a4a,
+    #2a2a4a 4px,
+    #1a1a3a 4px,
+    #1a1a3a 8px
+  );
+  border-radius: 4px;
+}
+
+.track-delay {
+  font-size: 9px;
+  color: #f59e0b;
+  margin-left: 4px;
+}
+
+.track-duration {
+  font-size: 10px;
+  color: #444466;
+  min-width: 45px;
+  text-align: right;
+}
+
+@keyframes progress-fill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ── Queue Demo V2 ── */
+.queue-demo-v2 {
+  background: linear-gradient(145deg, #0d0d28 0%, #0a0a1e 100%);
+  border: 1px solid #2a2a5a;
+  border-radius: 16px;
+  padding: 28px;
+  position: relative;
+  z-index: 100;
+}
+
+/* Queue Tabs */
+.queue-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #1e1e40;
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  background: transparent;
+  color: #6666aa;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: #a78bfa;
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.tab-btn.active {
+  color: #a78bfa;
+  background: rgba(124, 58, 237, 0.15);
+  border-color: #7c3aed55;
+}
+
+.tab-content {
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
