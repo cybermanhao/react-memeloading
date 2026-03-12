@@ -517,3 +517,59 @@ a:hover { text-decoration: underline; }
 ::-webkit-scrollbar-track { background: #08081a; }
 ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a6a; }
+
+/* ── Queue Demo ── */
+.queue-demo {
+  background: #0d0d28;
+  border: 1px solid #1e1e40;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.queue-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn-queue {
+  background: #1a1a3a;
+  color: #a78bfa;
+  border: 1px solid #2a2a5a;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-queue:hover:not(:disabled) {
+  background: #2d1f5e;
+  border-color: #7c3aed;
+}
+
+.btn-queue:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.queue-status {
+  font-size: 16px;
+  color: #9999cc;
+  margin-bottom: 16px;
+}
+
+.queue-status strong {
+  color: #a78bfa;
+  font-size: 24px;
+}
+
+.queue-hint {
+  font-size: 12px;
+  color: #555688;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid #1e1e40;
+}

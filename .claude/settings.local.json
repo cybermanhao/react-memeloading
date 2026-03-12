@@ -5,7 +5,9 @@
       "Bash(node_modules/.bin/tsc --noEmit 2>&1)",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(sleep 2 && curl -s http://localhost:3002/react-memeloading/ | head -30)"
+      "Bash(sleep 2 && curl -s http://localhost:3002/react-memeloading/ | head -30)",
+      "Bash(netstat -ano | grep \":3002 \")",
+      "Bash(powershell -Command \"Get-Process -Id 35116 | Select-Object Id, ProcessName\")"
     ]
   }
 }

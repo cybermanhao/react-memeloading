@@ -5,6 +5,7 @@ import '../src/index.css';
 import './demo.css';
 import MiniPreview from './components/MiniPreview';
 import { usePreviewDebounce } from './hooks/usePreviewDebounce';
+import { useLoadingQueue } from '../src/hooks/useLoadingQueue';
 
 interface Config {
   minDuration: number;
@@ -28,6 +29,57 @@ const BG_PRESETS = [
   { label: '半透明', value: 'rgba(56, 60, 70, 0.82)' },
   { label: '白色', value: 'rgba(255, 255, 255, 0.95)' },
 ];
+
+// Queue Mode Demo Component
+const QueueDemo: React.FC = () => {
+  const { add, remove, count, withLoading } = useLoadingQueue();
+
+  // 模拟异步请求
+  const simulateRequest = (ms: number) =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+  // 方式1: 手动管理
+  const handleManualAdd = () => {
+    add();
+    simulateRequest(2000).then(remove);
+  };
+
+  // 方式2: 使用 withLoading 自动管理
+  const handleAuto = async () => {
+    await withLoading(() => simulateRequest(1500));
+  };
+
+  // 方式3: 并发多个请求
+  const handleMultiple = async () => {
+    await Promise.all([
+      withLoading(() => simulateRequest(1000)),
+      withLoading(() => simulateRequest(2000)),
+      withLoading(() => simulateRequest(3000)),
+    ]);
+  };
+
+  return (
+    <div className="queue-demo">
+      <div className="queue-actions">
+        <button className="btn-queue" onClick={handleManualAdd}>
+          手动 add + remove
+        </button>
+        <button className="btn-queue" onClick={handleAuto}>
+          withLoading 自动管理
+        </button>
+        <button className="btn-queue" onClick={handleMultiple}>
+          并发 3 个请求
+        </button>
+      </div>
+      <div className="queue-status">
+        当前队列计数: <strong>{count}</strong>
+      </div>
+      <p className="queue-hint">
+        查看 useLoadingQueue hook 源码，了解如何在自己的项目中使用
+      </p>
+    </div>
+  );
+};
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -305,6 +357,14 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ── QUEUE MODE DEMO ── */}
+      <section className="section">
+        <h2 className="section-title">队列模式</h2>
+        <p className="section-desc">使用 useLoadingQueue hook 管理多个并发请求</p>
+
+        <QueueDemo />
       </section>
 
       {/* ── MEME WALL ── */}

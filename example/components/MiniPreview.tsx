@@ -1,5 +1,5 @@
 import React from 'react';
-import MemeLoading from '../../src/index';
+import MemeLoading, { defaultMemesSet } from '../../src/index';
 
 interface Config {
   minDuration: number;
@@ -35,6 +35,7 @@ const MiniPreview: React.FC<MiniPreviewProps> = ({
           backgroundColor={config.backgroundColor}
           safemod={config.safemod}
           trueFan={config.trueFan}
+          memes={defaultMemesSet}
         />
       </div>
     </div>
