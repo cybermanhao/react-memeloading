@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import MemeLoading, { defaultMemesSet } from '../src/index';
 import '../src/index.css';
 import './demo.css';
+import MiniPreview from './components/MiniPreview';
+import { usePreviewDebounce } from './hooks/usePreviewDebounce';
 
 interface Config {
   minDuration: number;
@@ -41,6 +43,12 @@ const App: React.FC = () => {
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [refreshingImage, setRefreshingImage] = useState(false);
 
+  // Add this state for mini preview
+  const [miniPreviewActive, setMiniPreviewActive] = useState(false);
+  const [autoPreviewTimeout, setAutoPreviewTimeout] = useState<number | null>(null);
+  const [lastAppliedConfig, setLastAppliedConfig] = useState(config);
+  const [configChanged, setConfigChanged] = useState(false);
+
   const fetchHeroImage = useCallback(() => {
     setRefreshingImage(true);
     fetch('https://api.waifu.pics/sfw/waifu')
@@ -50,6 +58,9 @@ const App: React.FC = () => {
       .finally(() => setRefreshingImage(false));
   }, []);
 
+  // Debounced config for mini preview
+  const debouncedConfig = usePreviewDebounce(config, 150);
+
   useEffect(() => {
     fetchHeroImage();
   }, [fetchHeroImage]);
@@ -57,8 +68,29 @@ const App: React.FC = () => {
   const trigger = useCallback((ms = 2500) => {
     if (loading) return;
     setLoading(true);
+    setLastAppliedConfig(config);
+    setConfigChanged(false);
     setTimeout(() => setLoading(false), ms);
-  }, [loading]);
+  }, [loading, config]);
+
+  const triggerAutoPreview = useCallback(() => {
+    if (autoPreviewTimeout) {
+      window.clearTimeout(autoPreviewTimeout);
+    }
+
+    setMiniPreviewActive(true);
+    const timeout = window.setTimeout(() => {
+      setMiniPreviewActive(false);
+    }, 1000);
+
+    setAutoPreviewTimeout(timeout);
+
+    return () => {
+      if (autoPreviewTimeout) {
+        window.clearTimeout(autoPreviewTimeout);
+      }
+    };
+  }, [autoPreviewTimeout]);
 
   const triggerSpecific = useCallback((index: number) => {
     if (loading) return;
@@ -70,8 +102,10 @@ const App: React.FC = () => {
     }, 3000);
   }, [loading]);
 
-  const set = <K extends keyof Config>(key: K, value: Config[K]) =>
+  const set = <K extends keyof Config>(key: K, value: Config[K]) => {
     setConfig(c => ({ ...c, [key]: value }));
+    triggerAutoPreview();
+  };
 
   // Only include props that differ from defaults in the snippet
   const codeSnippet = useMemo(() => {
@@ -86,6 +120,26 @@ const App: React.FC = () => {
     if (config.trueFan) lines.push('  trueFan');
     return `<MemeLoading\n${lines.join('\n')}\n/>`;
   }, [config]);
+
+  // Cleanup auto-preview timeout
+  useEffect(() => {
+    return () => {
+      if (autoPreviewTimeout) {
+        window.clearTimeout(autoPreviewTimeout);
+      }
+    };
+  }, [autoPreviewTimeout]);
+
+  // Detect config changes
+  useEffect(() => {
+    const hasChanged =
+      lastAppliedConfig.minDuration !== config.minDuration ||
+      lastAppliedConfig.boostDuration !== config.boostDuration ||
+      lastAppliedConfig.backgroundColor !== config.backgroundColor ||
+      lastAppliedConfig.safemod !== config.safemod ||
+      lastAppliedConfig.trueFan !== config.trueFan;
+    setConfigChanged(hasChanged);
+  }, [config, lastAppliedConfig]);
 
   const copyCode = () => {
     navigator.clipboard.writeText(codeSnippet);
@@ -230,15 +284,25 @@ const App: React.FC = () => {
             </button>
           </div>
 
-          {/* Code preview */}
-          <div className="code-panel">
-            <div className="code-header">
-              <span className="code-title">代码</span>
-              <button className="btn-copy" onClick={copyCode}>
-                {copied ? '已复制 ✓' : '复制'}
-              </button>
+          {/* Preview column */}
+          <div className="preview-column">
+            <MiniPreview
+              config={debouncedConfig}
+              isActive={miniPreviewActive}
+              onPreviewClick={() => trigger(1000)}
+              hasChanges={configChanged}
+            />
+
+            {/* Code preview */}
+            <div className="code-panel">
+              <div className="code-header">
+                <span className="code-title">代码</span>
+                <button className="btn-copy" onClick={copyCode}>
+                  {copied ? '已复制 ✓' : '复制'}
+                </button>
+              </div>
+              <pre className="code-block"><code>{codeSnippet}</code></pre>
             </div>
-            <pre className="code-block"><code>{codeSnippet}</code></pre>
           </div>
         </div>
       </section>

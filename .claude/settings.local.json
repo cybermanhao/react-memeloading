@@ -4,7 +4,8 @@
       "Bash(npx tsc:*)",
       "Bash(node_modules/.bin/tsc --noEmit 2>&1)",
       "Bash(npm install:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(sleep 2 && curl -s http://localhost:3002/react-memeloading/ | head -30)"
     ]
   }
 }

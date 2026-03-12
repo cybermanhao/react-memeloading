@@ -4,6 +4,10 @@
 
 让你的 loading 也能"龙女仆"起来，快乐开发，快乐等候！
 
+## 🌐 在线演示
+
+访问 [GitHub Pages 演示页面](https://cybermanhao.github.io/react-memeloading/) 查看效果！
+
 ## ✨ 特性
 
 - 🎭 **弹幕风格动画** - 模仿《小林家的龙女仆》片头的打字机效果
@@ -43,11 +47,11 @@ function App() {
       <button onClick={handleLoadingTest}>
         测试 MemeLoading
       </button>
-      
+
       <MemeLoading
         loadingSignal={loading}
-        minDuration={1.5}           // 最短显示时间1.5秒
-        boostDuration={0.2}         // 结束加速动画0.2秒
+        minDuration={1.5}           // 最短显示时间 1.5 秒
+        boostDuration={0.2}         // 结束加速动画 0.2 秒
         backgroundColor="rgba(0, 0, 0, 0.8)"
       />
     </div>
@@ -73,11 +77,11 @@ function App() {
 ### 配置详解
 
 #### `minDuration` - 最短显示时间
-防止loading过快消失造成的闪烁效果：
+防止 loading 过快消失造成的闪烁效果：
 ```tsx
 <MemeLoading
   loadingSignal={loading}
-  minDuration={1.0}  // 至少显示1秒，即使loading很快结束
+  minDuration={1.0}  // 至少显示 1 秒，即使 loading 很快结束
 />
 ```
 
@@ -96,7 +100,7 @@ function App() {
 <MemeLoading
   loadingSignal={taskCount}
   queueMode={true}
-  minDuration={0.5}    // 每个任务至少显示0.5秒
+  minDuration={0.5}    // 每个任务至少显示 0.5 秒
   boostDuration={0.1}  // 快速切换到下一个任务
 />
 ```
@@ -112,17 +116,17 @@ import MemeLoading from 'react-meme-loading';
 function App() {
   const [loadingCount, setLoadingCount] = useState(0);
 
-  // 添加单个loading任务
+  // 添加单个 loading 任务
   const addLoading = useCallback(() => {
     setLoadingCount(count => count + 1);
   }, []);
 
-  // 移除单个loading任务
+  // 移除单个 loading 任务
   const removeLoading = useCallback(() => {
     setLoadingCount(count => Math.max(0, count - 1));
   }, []);
 
-  // 批量添加多个loading任务
+  // 批量添加多个 loading 任务
   const addMultipleLoading = useCallback((num: number) => {
     setLoadingCount(count => count + num);
   }, []);
@@ -137,7 +141,7 @@ function App() {
 
   // 模拟多个并发操作
   const simulateMultipleTasks = useCallback(() => {
-    // 添加3个任务，每个任务在不同时间完成
+    // 添加 3 个任务，每个任务在不同时间完成
     [1000, 2000, 3000].forEach((delay, index) => {
       addLoading();
       setTimeout(() => removeLoading(), delay);
@@ -154,25 +158,25 @@ function App() {
           模拟异步操作 (3s)
         </button>
         <button onClick={simulateMultipleTasks}>
-          模拟3个并发任务
+          模拟 3 个并发任务
         </button>
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <button onClick={addLoading}>手动添加 (+1)</button>
         <button onClick={() => addMultipleLoading(3)}>批量添加 (+3)</button>
         <button onClick={removeLoading}>手动移除 (-1)</button>
         <button onClick={() => setLoadingCount(0)}>清空队列</button>
       </div>
-      
-      <p>当前 loading 数量: {loadingCount}</p>
-      
+
+      <p>当前 loading 数量：{loadingCount}</p>
+
       {/* 队列模式配置 */}
       <MemeLoading
         loadingSignal={loadingCount}
         queueMode={true}
-        minDuration={0.8}           // 每个任务最短显示0.8秒
-        boostDuration={0.15}        // 快速切换动画0.15秒
+        minDuration={0.8}           // 每个任务最短显示 0.8 秒
+        boostDuration={0.15}        // 快速切换动画 0.15 秒
         backgroundColor="rgba(56, 60, 70, 0.9)"
       />
     </div>
@@ -212,20 +216,20 @@ const customMemes = [
 
 ### 全局 Loading 管理器
 
-创建一个全局的loading管理系统：
+创建一个全局的 loading 管理系统：
 
 ```tsx
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import MemeLoading from 'react-meme-loading';
 
-// 创建Loading上下文
+// 创建 Loading 上下文
 const LoadingContext = createContext({
   addLoading: () => {},
   removeLoading: () => {},
   loadingCount: 0
 });
 
-// Loading Provider组件
+// Loading Provider 组件
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
   const [loadingCount, setLoadingCount] = useState(0);
 
@@ -240,8 +244,8 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
   return (
     <LoadingContext.Provider value={{ addLoading, removeLoading, loadingCount }}>
       {children}
-      
-      {/* 全局Loading组件 */}
+
+      {/* 全局 Loading 组件 */}
       <MemeLoading
         loadingSignal={loadingCount}
         queueMode={true}
@@ -253,7 +257,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// 自定义Hook
+// 自定义 Hook
 export function useLoading() {
   const context = useContext(LoadingContext);
   if (!context) {
@@ -283,13 +287,13 @@ function MyComponent() {
 
   const handleApiCall = async () => {
     await withLoading(async () => {
-      // 自动管理loading状态
+      // 自动管理 loading 状态
       const response = await fetch('/api/data');
       return response.json();
     });
   };
 
-  return <button onClick={handleApiCall}>调用API</button>;
+  return <button onClick={handleApiCall}>调用 API</button>;
 }
 ```
 
@@ -347,7 +351,7 @@ function App() {
 组件内置了丰富的 meme 列表，包括：
 - 编程梗：`"Hello, world!"`、`for (let i = 0; i < array.length; i++) { }`
 - 数学/物理公式：`E=MC²`、`a² + b² = c²`
--  表情符号：`(^_^)`、`¯\\_(ツ)_/¯`、`ಠ_ಠ`
+- 表情符号：`(^_^)`、`¯\_(ツ)_/¯`、`ಠ_ಠ`
 - 经典语录和彩蛋
 
 你可以导入并使用默认列表：
@@ -377,7 +381,7 @@ npm run build
 # 测试
 npm test
 
-# 预览example
+# 预览 example
 npm run preview:example
 
 # 或手动
@@ -385,20 +389,13 @@ cd example
 npx vite      # 直接本地预览
 ```
 
-## 🚀 在线预览与部署
+## 🚀 部署状态
 
 本项目的 example 示例页面已通过 GitHub Actions 自动部署至 GitHub Pages。
 
-- **在线预览地址**：
-  [https://cybermanhao.github.io/react-memeloading/](https://cybermanhao.github.io/react-memeloading/)
-
 每次 push 到 main 分支，CI/CD 会自动构建并发布最新 example 页面到 gh-pages 分支。
 
-### 🟢 部署状态
-
 ![GitHub Pages](https://github.com/cybermanhao/react-memeloading/actions/workflows/gh-pages.yml/badge.svg)
-
-如需本地预览 example，请参考上文“开发”部分。
 
 ## 📄 许可证
 
