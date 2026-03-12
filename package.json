@@ -32,16 +32,16 @@
     "dragon-maid",
     "kobayashi"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "cybermanhao",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/react-meme-loading.git"
+    "url": "https://github.com/cybermanhao/react-memeloading.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/react-meme-loading/issues"
+    "url": "https://github.com/cybermanhao/react-memeloading/issues"
   },
-  "homepage": "https://github.com/yourusername/react-meme-loading#readme",
+  "homepage": "https://cybermanhao.github.io/react-memeloading/",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

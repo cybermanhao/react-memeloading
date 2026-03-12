@@ -99,6 +99,7 @@ function App() {
   minDuration={0.5}    // 每个任务至少显示0.5秒
   boostDuration={0.1}  // 快速切换到下一个任务
 />
+```
 
 ### 队列模式示例
 
@@ -398,20 +399,6 @@ npx vite      # 直接本地预览
 ![GitHub Pages](https://github.com/cybermanhao/react-memeloading/actions/workflows/gh-pages.yml/badge.svg)
 
 如需本地预览 example，请参考上文“开发”部分。
-
-## 📦 example 目录部署到 GitHub Pages
-
-本仓库已配置 GitHub Actions 自动将 example 目录（Vite 构建产物）部署到 GitHub Pages，访问地址：
-
-👉 [https://cybermanhao.github.io/react-memeloading/](https://cybermanhao.github.io/react-memeloading/)
-
-每次 push 到 main 分支，example 会自动构建并发布到 gh-pages 分支。
-
-### CI 状态
-
-![GitHub Pages](https://github.com/cybermanhao/react-memeloading/actions/workflows/gh-pages.yml/badge.svg)
-
-如需本地预览 example，请参考“开发”部分。
 
 ## 📄 许可证
 
