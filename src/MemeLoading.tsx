@@ -9,6 +9,7 @@ const MemeLoading: React.FC<MemeLoadingProps> = ({
   trueFan = false,
   memes = defaultMemesSet,
   backgroundColor = '',
+  textColor = '',
   minDuration = 0,
   safeMode = false,
   // 兼容旧版拼写
@@ -128,7 +129,7 @@ const MemeLoading: React.FC<MemeLoadingProps> = ({
       aria-live="polite"
       aria-busy={show}
     >
-      <div className="meme">{isSafeMode ? '' : visibleMeme}</div>
+      <div className="meme" style={{ color: textColor || undefined }}>{isSafeMode ? '' : visibleMeme}</div>
     </div>
   );
 };

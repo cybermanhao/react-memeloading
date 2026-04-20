@@ -11,6 +11,7 @@ interface Config {
   minDuration: number;
   boostDuration: number;
   backgroundColor: string;
+  textColor: string;
   safemod: boolean;
   trueFan: boolean;
   showTrack: boolean;
@@ -20,16 +21,17 @@ const DEFAULTS: Config = {
   minDuration: 0,
   boostDuration: 0.1,
   backgroundColor: '',
+  textColor: '',
   safemod: false,
   trueFan: false,
   showTrack: false,
 };
 
 const BG_PRESETS = [
-  { label: '暗黑', value: 'rgba(0, 0, 0, 0.88)' },
-  { label: '深紫', value: 'rgba(15, 10, 40, 0.92)' },
-  { label: '半透明', value: 'rgba(56, 60, 70, 0.82)' },
-  { label: '白色', value: 'rgba(255, 255, 255, 0.95)' },
+  { label: '暗黑', value: 'rgba(0, 0, 0, 0.88)', textColor: '' },
+  { label: '深紫', value: 'rgba(15, 10, 40, 0.92)', textColor: '' },
+  { label: '半透明', value: 'rgba(56, 60, 70, 0.82)', textColor: '' },
+  { label: '白色', value: 'rgba(255, 255, 255, 0.95)', textColor: '#333333' },
 ];
 
 // Queue Mode Demo Component
@@ -439,6 +441,8 @@ const App: React.FC = () => {
       lines.push(`  boostDuration={${config.boostDuration}}`);
     if (config.backgroundColor !== DEFAULTS.backgroundColor)
       lines.push(`  backgroundColor="${config.backgroundColor}"`);
+    if (config.textColor !== DEFAULTS.textColor)
+      lines.push(`  textColor="${config.textColor}"`);
     if (config.safemod) lines.push('  safemod');
     if (config.trueFan) lines.push('  trueFan');
     if (config.showTrack) lines.push('  showTrack');
@@ -565,7 +569,10 @@ const App: React.FC = () => {
                   <button
                     key={p.label}
                     className={`btn-preset ${config.backgroundColor === p.value ? 'active' : ''}`}
-                    onClick={() => set('backgroundColor', p.value)}
+                    onClick={() => {
+                      set('backgroundColor', p.value);
+                      set('textColor', (p as any).textColor || '');
+                    }}
                   >
                     {p.label}
                   </button>

@@ -7,6 +7,8 @@ export interface MemeLoadingProps {
   memes?: string[];
   /** 遮罩背景色 */
   backgroundColor?: string;
+  /** 文字颜色 */
+  textColor?: string;
   /** 最短显示时间（秒），safemod=true 时强制为 0.1 */
   minDuration?: number;
   /** 安全模式，true 时不显示字符且所有动画加速为 0.1 秒 */
